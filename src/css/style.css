@@ -15,15 +15,18 @@ body {
 }
 
 .textlog {
-    width: 380px;
-    max-height: 550px;
-    overflow-y: auto;
+    width: 600px;
+    max-height: 750px;
     display: flex;
     border: 1px solid black;
     border-radius: 10px;
     box-sizing: border-box;
     flex-direction: column;
-    padding: 5px;
+    padding: 5px 5px 5px 20px;
+}
+
+.textlog-logging {
+    overflow-y: auto;
 }
 
 ::-webkit-scrollbar {

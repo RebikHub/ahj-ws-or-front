@@ -1,41 +1,48 @@
 export default class TextBroadcast {
-  constructor(server) {
+  constructor(server, sse) {
     this.server = server;
-    this.worklog = document.querySelector('.worklog-logging');
+    this.sse = sse;
+    this.textlog = document.querySelector('.textlog-logging');
   }
 
   events() {
-    this.addLog();
+    this.eventSource();
   }
 
-  static eventSource(command) {
-    const sse = new EventSource(`http://localhost:3333/sse${command}`);
-    sse.addEventListener('comment', (ev) => {
-      console.log(ev.data);
+  eventSource() {
+    this.sse.addEventListener('comment', (ev) => {
+      const { data } = ev;
+      console.log(ev);
+      this.addLog(data);
     });
 
-    sse.addEventListener('open', () => {
+    this.sse.addEventListener('open', () => {
       console.log('connected');
     });
 
-    sse.addEventListener('error', () => {
+    this.sse.addEventListener('error', () => {
       console.log('error');
     });
   }
 
-  addLog(id, info = 'Recieved: "Load instance"') {
+  addLog(data) {
     const divLog = document.createElement('div');
     const spanDate = document.createElement('span');
-    const spanServer = document.createElement('span');
-    const spanInfo = document.createElement('span');
+    const spanImage = document.createElement('span');
+    const spanText = document.createElement('span');
     spanDate.textContent = TextBroadcast.date();
-    spanServer.textContent = `Server: ${id}`;
-    spanInfo.textContent = `INFO: ${info}`;
+    if (data.type === 'freekick') {
+      spanImage.classList.add('freekick');
+    } else if (data.type === 'goal') {
+      spanImage.classList.add('goal');
+    }
+    spanText.textContent = data.text;
     divLog.appendChild(spanDate);
-    divLog.appendChild(spanServer);
-    divLog.appendChild(spanInfo);
+    divLog.appendChild(spanImage);
+    divLog.appendChild(spanText);
     divLog.classList.add('log');
-    this.worklog.appendChild(divLog);
+    this.textlog.appendChild(divLog);
+    this.textlog.scrollTop = this.textlog.scrollHeight;
   }
 
   static date() {
