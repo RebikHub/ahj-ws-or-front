@@ -22,7 +22,7 @@ body {
     border-radius: 10px;
     box-sizing: border-box;
     flex-direction: column;
-    padding: 5px 5px 5px 20px;
+    padding: 10px;
 }
 
 .textlog-logging {
@@ -38,9 +38,37 @@ body {
     background-color: lightgrey;
 }
 
-.log {
+.goal {
+    width: 34px;
+    height: 34px;
+    background-size: cover;
+    background-image: url(../img/soccer.png);
+}
+
+.freekick {
+    width: 34px;
+    height: 34px;
+    background-size: contain;
+    background-image: url(../img/freekick.png);
+}
+
+.action {
+    width: 34px;
+    height: 34px;
+}
+
+.text {
+    align-self: flex-end;
+}
+
+.event {
     display: flex;
     flex-direction: column;
+    margin-left: 5px;
+}
+
+.log {
+    display: flex;
     padding-top: 10px;
 }
 

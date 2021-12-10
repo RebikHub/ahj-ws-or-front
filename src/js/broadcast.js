@@ -1,7 +1,6 @@
 export default class TextBroadcast {
-  constructor(server, sse) {
-    this.server = server;
-    this.sse = sse;
+  constructor() {
+    this.sse = new EventSource('https://ahj-ws-or.herokuapp.com/sse');
     this.textlog = document.querySelector('.textlog-logging');
   }
 
@@ -11,9 +10,15 @@ export default class TextBroadcast {
 
   eventSource() {
     this.sse.addEventListener('comment', (ev) => {
-      const { data } = ev;
-      console.log(ev);
-      this.addLog(data);
+      const data = JSON.parse(ev.data);
+
+      if (data.fullMatch) {
+        this.fullMatch(data.fullMatch);
+      } else if (data.events && data.events.text !== 'Матч завершился') {
+        this.addLog(data.events);
+      } else if (data.events.text === 'Матч завершился') {
+        this.sse.close();
+      }
     });
 
     this.sse.addEventListener('open', () => {
@@ -22,52 +27,39 @@ export default class TextBroadcast {
 
     this.sse.addEventListener('error', () => {
       console.log('error');
+      this.sse.close();
     });
+  }
+
+  fullMatch(array) {
+    for (let i = 0; i < array.length; i += 1) {
+      this.addLog(array[i]);
+    }
   }
 
   addLog(data) {
     const divLog = document.createElement('div');
+    const divEvent = document.createElement('div');
     const spanDate = document.createElement('span');
     const spanImage = document.createElement('span');
     const spanText = document.createElement('span');
-    spanDate.textContent = TextBroadcast.date();
+    spanDate.textContent = data.date;
     if (data.type === 'freekick') {
       spanImage.classList.add('freekick');
     } else if (data.type === 'goal') {
       spanImage.classList.add('goal');
+    } else {
+      spanImage.classList.add('action');
     }
+    spanText.classList.add('text');
+    divEvent.classList.add('event');
     spanText.textContent = data.text;
-    divLog.appendChild(spanDate);
     divLog.appendChild(spanImage);
-    divLog.appendChild(spanText);
+    divEvent.appendChild(spanDate);
+    divEvent.appendChild(spanText);
+    divLog.appendChild(divEvent);
     divLog.classList.add('log');
     this.textlog.appendChild(divLog);
     this.textlog.scrollTop = this.textlog.scrollHeight;
-  }
-
-  static date() {
-    const year = new Date().getFullYear();
-    let month = new Date().getMonth() + 1;
-    let day = new Date().getDate();
-    let hours = new Date().getHours();
-    let minute = new Date().getMinutes();
-    let seconds = new Date().getSeconds();
-
-    if (String(month).length === 1) {
-      month = `0${month}`;
-    }
-    if (String(day).length === 1) {
-      day = `0${day}`;
-    }
-    if (String(minute).length === 1) {
-      minute = `0${minute}`;
-    }
-    if (String(seconds).length === 1) {
-      seconds = `0${seconds}`;
-    }
-    if (String(hours).length === 1) {
-      hours = `0${hours}`;
-    }
-    return `${hours}:${minute}:${seconds} ${day}.${month}.${String(year).slice(2)}`;
   }
 }
